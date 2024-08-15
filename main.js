@@ -16,7 +16,7 @@
 	'use strict';
 
 	async function execute(url) {
-		let data = await fetch("https://raw.githubusercontent.com/7GrandDadPGN/VapeForMiniblox/main/injection.js").then(e => e.text());
+		let data = await fetch("https://raw.githubusercontent.com/sstvskids/VapeForMiniblox/main/injection.js").then(e => e.text());
 		eval(data.replace("scripturl", url));
 	}
 
