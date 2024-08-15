@@ -72,7 +72,7 @@ function modifyCode(text) {
 		let tickLoop = {};
 		let renderTickLoop = {};
 
-		let lastJoined, velocityhori, velocityvert, chatdisablermsg, attackedEntity, stepheight;
+		let lastJoined, velocityhori, velocityvert, chatdisablermsg, attackedEntity, stepheight, lastTeleport;
 		let attackTime = Date.now();
 		let chatDelay = Date.now();
 
@@ -364,6 +364,15 @@ function modifyCode(text) {
 	// LOGIN BYPASS
 	addReplacement('new SPacketLoginStart({requestedUuid:localStorage.getItem(REQUESTED_UUID_KEY)??void 0,session:localStorage.getItem(SESSION_TOKEN_KEY)??"",hydration:localStorage.getItem("hydration")??"0",metricsId:localStorage.getItem("metrics_id")??"",clientVersion:VERSION$1})', 'new SPacketLoginStart({requestedUuid:void 0,session:(enabledModules["AntiBan"] ? "" : (localStorage.getItem(SESSION_TOKEN_KEY) ?? "")),hydration:"0",metricsId:"",clientVersion:VERSION$1})', true);
 
+	// TELEPORT FIX
+	addReplacement('player$1.setPositionAndRotation($.x,$.y,$.z,$.yaw,$.pitch),', `
+		lastTeleport = new Vector3$1($.x, $.y, $.z);
+		setTimeout(function() {
+			player$1.setPositionAndRotation($.x,$.y,$.z,$.yaw,$.pitch);
+		}, 500);
+		player$1.setPositionAndRotation($.x,$.y,$.z,$.yaw,$.pitch),
+	`, true);
+	
 	// KEY FIX
 	addReplacement('Object.assign(keyMap,_)', '; keyMap["Semicolon"] = "semicolon"; keyMap["Apostrophe"] = "apostrophe";');
 
@@ -976,6 +985,13 @@ function modifyCode(text) {
 				if (callback) {
 					if (player$1) player$1.setGamemode(GameMode.fromId("survival"));
 					survival.toggle();
+				}
+			});
+
+   			const resync = new Module("Resync", function(callback) {
+				if(callback) {
+					if(player$1 && lastTeleport) player$1.setPosition(lastTeleport);
+					resync.toggle();
 				}
 			});
 
